@@ -244,6 +244,9 @@ public class Main {
 
 ## Example Two
 
+
+![ex_02](https://res.cloudinary.com/dcalvdelc/image/upload/v1565802936/Strategy_Design_Pattern_2.png)
+
 > Payment <<interface>>
 	
 ```java
