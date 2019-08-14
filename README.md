@@ -241,3 +241,323 @@ public class Main {
 }
 
 ```
+
+## Example Two
+
+> Payment <<interface>>
+	
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+public interface Payment {
+	public boolean pay(int amount);
+}
+
+```
+
+> OnPayment <<interface>>
+	
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+public interface OnPayment<T> {
+	public void onSuccess(boolean what);
+	public void onError(boolean what);
+}
+
+```
+
+> OnPaymentWithPrinter <<interface>>
+	
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+public interface OnPaymentWithPrinter<T> extends OnPayment<T> {
+	public void onSuccess(Printer<T> printer);
+}
+
+```
+
+> BillBehavior <<interface>>
+	
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+public interface BillBehavior<T> {
+	public void printBill(T[] items);
+}
+
+```
+
+> Printer.java
+
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+public class Printer<T> {
+	public BillBehavior<T> behavior;
+	
+	public void printBill(T[] billList) {
+		behavior.printBill(billList);
+	}
+}
+
+```
+
+> ShoppingCart.java
+
+```java
+
+package _2019.Kind1.ex_01.controllers;
+
+import java.util.ArrayList;
+
+import _2019.Kind1.ex_01.models.Product;
+
+public class ShoppingCart {
+	ArrayList<Product> products = new ArrayList<>();
+	
+	public ShoppingCart() {}
+	
+	public ShoppingCart(Product[] products) {
+		for (Product product: products) {
+			this.products.add(product);
+		}
+	}
+	
+	public boolean addProduct(Product product) {
+		this.products.add(product);
+		return true;
+	}
+	
+	public boolean removeProduct(Product product) {
+		this.products.remove(product);
+		return true;
+	}
+	
+	public boolean clearCart() {
+		this.products.clear();
+		return true;
+	}
+	
+	public boolean Pay(Payment payment, OnPaymentWithPrinter<Product> onPaymentPrinter) {
+		int total = 0;
+		
+		for(Product product: this.products) {
+			total += product.getPrice();
+		}
+		
+		onPaymentPrinter.onSuccess(new Printer<Product>());
+		// onPayment.onError(false);
+		
+		return payment.pay(total);
+	}
+}
+
+
+```
+
+> Product.java
+
+```java
+
+package _2019.Kind1.ex_01.models;
+
+public class Product {
+	private String name;
+	private int price;
+	
+	public Product(String name, int price) {
+		this.name = name;
+		this.price = price;
+	}
+	
+	public String getName() { return this.name; }
+	public int getPrice() { return this.price; }
+}
+
+```
+
+> Paypal.java
+
+```java
+
+package _2019.Kind1.ex_01.models;
+
+import _2019.Kind1.ex_01.controllers.Payment;
+
+public class Paypal implements Payment {
+	String email;
+	String password;
+	
+	public Paypal(String email, String password) {
+		this.email = email;
+		this.password = password;
+	}
+	
+	@Override
+	public boolean pay(int amount) {
+		System.out.println("Email " + email + ",\nPaying " + amount + " with " + this.getClass().getSimpleName());
+		return true;
+	}
+}
+
+```
+
+> CreditCard.java
+
+```java
+
+package _2019.Kind1.ex_01.models;
+
+import _2019.Kind1.ex_01.controllers.Payment;
+
+public class CreditCard implements Payment {
+	String name;
+	String cardNumber;
+	
+	public CreditCard(String name, String cardNumber) {
+		this.name = name;
+		this.cardNumber = cardNumber;
+	}
+	
+	@Override
+	public boolean pay(int amount) {
+		System.out.println("Name " + name + ",\nPaying " + amount + " with " + this.getClass().getSimpleName());
+		return true;
+	}
+}
+
+```
+
+> BillWithPrice.java
+
+```java
+
+package _2019.Kind1.ex_01.models;
+
+import _2019.Kind1.ex_01.controllers.BillBehavior;
+
+public class BillWithPrice implements BillBehavior<Product>{
+	@Override
+	public void printBill(Product[] products) {
+		int counter = 1;
+		System.out.println("===========================");
+		for(Product product: products) {
+			System.out.println(counter++ + ". " + product.getName() + "\t" + product.getPrice());
+		}
+		System.out.println("===========================");
+	}
+}
+
+```
+
+> BillWithoutPrice.java
+
+```java
+
+package _2019.Kind1.ex_01.models;
+
+import _2019.Kind1.ex_01.controllers.BillBehavior;
+
+public class BillWithoutPrice implements BillBehavior<Product> {
+	@Override
+	public void printBill(Product[] products) {
+		int counter = 1;
+		System.out.println("===========================");
+		for(Product product: products) {
+			System.out.println(counter++ + ". " + product.getName());
+		}
+		System.out.println("===========================");
+	}
+}
+
+```
+
+> Main.java
+
+
+```java
+
+package _2019.Kind1.ex_01;
+
+import _2019.Kind1.ex_01.controllers.OnPayment;
+import _2019.Kind1.ex_01.controllers.OnPaymentWithPrinter;
+import _2019.Kind1.ex_01.controllers.Printer;
+import _2019.Kind1.ex_01.controllers.ShoppingCart;
+import _2019.Kind1.ex_01.models.BillWithPrice;
+// import _2019.Kind1.ex_01.models.BillWithPrice;
+import _2019.Kind1.ex_01.models.BillWithoutPrice;
+import _2019.Kind1.ex_01.models.CreditCard;
+import _2019.Kind1.ex_01.models.Paypal;
+import _2019.Kind1.ex_01.models.Product;
+
+public class Main {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Product[] products = {
+					new Product("Shampoo", 45), 
+					new Product("Lighter", 12),
+					new Product("Fridge", 45499)
+				};
+		
+		ShoppingCart shoppingCart = new ShoppingCart(products);
+		shoppingCart.Pay(new CreditCard("GauravGupta", "123456789"), new OnPaymentWithPrinter<Product>() {
+			
+			@Override
+			public void onSuccess(boolean what) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onError(boolean what) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onSuccess(Printer<Product> printer) {
+				// TODO Auto-generated method stub
+				printer.behavior = new BillWithPrice();
+				printer.printBill(products);
+			}
+		});
+		
+		/*
+		 * 
+		 * 
+			new OnPayment() {
+				
+				@Override
+				public void onSuccess(boolean what) {
+					// TODO Auto-generated method stub
+					System.out.println("Payment Done. Thanks Visit Again");
+					shoppingCart.clearCart();
+					
+					Printer<Product> printer = new Printer<>();
+					// printer.behavior = new BillWithPrice();
+					printer.behavior = new BillWithoutPrice();
+					printer.printBill(products);
+				}
+				
+				@Override
+				public void onError(boolean what) {
+					// TODO Auto-generated method stub
+					System.out.println("No Error Found!");
+				}
+			}
+		 * 
+		 * 
+		 * */
+	}
+}
+
+```
+
