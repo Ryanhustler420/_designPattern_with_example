@@ -1,6 +1,10 @@
 # _designPattern_with_example
 NOTE: this is not a bible. In this repo each design pattern has different example. so that we can better understand the design and best use cases.
 
+## Cheat Sheet
+
+![cheatSheet](https://i.pinimg.com/originals/02/32/6a/02326ab87918f1ac3fa8305310919176.jpg)
+
 # strategy design pattern
 
 ``
@@ -564,3 +568,189 @@ public class Main {
 
 ```
 
+# Observer Design Pattern
+
+``The observer pattern is a software design pattern in which an object, called the subject, maintains a list of its dependents, called observers, and notifies them automatically of any state changes, usually by calling one of their methods.``
+
+![umlObserver](https://res.cloudinary.com/dcalvdelc/image/upload/v1565871481/Observer_Design_Pattern.png)
+
+> Observer - Interface
+
+```java
+
+package _2019.Observer.ex_01.controllers;
+
+public interface Observer {
+	public void update();
+	public void setSubject(Subject subject);
+}
+
+
+```
+
+> Subject - Interface
+
+```java
+package _2019.Observer.ex_01.controllers;
+
+public interface Subject {
+	public void register(Observer observer);
+	public void unregister(Observer observer);
+	public void notifyObserver();
+	
+	public Object getUpdate(Observer observer); 
+}
+```
+
+> EmailTopic.java
+
+```java
+
+package _2019.Observer.ex_01.models;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import _2019.Observer.ex_01.controllers.Observer;
+import _2019.Observer.ex_01.controllers.Subject;
+
+public class EmailTopic implements Subject {
+
+	List<Observer> observers;
+	String message;
+	
+	public EmailTopic() {
+		this.observers = new ArrayList<>();
+	}
+	
+	@Override
+	public void register(Observer observer) {
+		// TODO Auto-generated method stub
+		if(observer == null) throw new NullPointerException("Null object/Observer");
+		
+		if(!observers.contains(observer))
+			observers.add(observer);
+		
+	}
+
+	@Override
+	public void unregister(Observer observer) {
+		// TODO Auto-generated method stub
+		observers.remove(observer);
+	}
+
+	@Override
+	public void notifyObserver() {
+		// TODO Auto-generated method stub
+		for(Observer observer: observers) {
+			observer.update();
+		}
+	}
+
+	@Override
+	public Object getUpdate(Observer observer) {
+		// TODO Auto-generated method stub
+		return this.message;
+	}
+	
+	public void postMessage(String msg) {
+		System.out.println("Message posted to my topic : " + msg);
+		this.message = msg;
+		notifyObserver();
+	}
+}
+
+```
+
+> EmailTopicSubscriber.java 
+
+```java
+
+package _2019.Observer.ex_01.models;
+
+import _2019.Observer.ex_01.controllers.Observer;
+import _2019.Observer.ex_01.controllers.Subject;
+
+public class EmailTopicSubscriber implements Observer {
+
+	String name;
+	
+	// Reference to our Subject class
+	private Subject topic;
+	
+	public EmailTopicSubscriber(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		String message = (String) topic.getUpdate(this);
+		if(message == null) {
+			System.out.println(name + " No new message on this topic");
+		}else {
+			System.out.println(name + " Retrieving message: " + message);
+		}
+	}
+
+	@Override
+	public void setSubject(Subject subject) {
+		// TODO Auto-generated method stub
+		this.topic = subject;
+	}
+
+}
+
+```
+
+> Main.java
+
+
+```java
+
+package _2019.Observer;
+
+import _2019.Observer.ex_01.controllers.Observer;
+import _2019.Observer.ex_01.models.EmailTopic;
+import _2019.Observer.ex_01.models.EmailTopicSubscriber;
+
+public class Main {
+
+	public static void main(String[] args) {
+		// System.out.println("The Observer Pattern");
+		
+		EmailTopic topic = new EmailTopic();
+		
+		// Create observer
+		Observer firstObserver = new EmailTopicSubscriber("First Observer");
+		Observer secondObserver = new EmailTopicSubscriber("Second Observer");
+		Observer thirdObserver = new EmailTopicSubscriber("Third Observer");
+		
+		// Register them...
+		topic.register(firstObserver);
+		topic.register(secondObserver);
+		topic.register(thirdObserver);
+		
+		// Attaching observer to subject
+		firstObserver.setSubject(topic);
+		secondObserver.setSubject(topic);
+		thirdObserver.setSubject(topic);
+		
+		// Check for updates
+		firstObserver.update();
+		thirdObserver.update();
+		
+		// Provider Subject ( broadcaster )
+		topic.postMessage("new user registered");
+		topic.postMessage("Gaurav Kill Raghav");
+		
+		// Unregister
+		topic.unregister(firstObserver);
+		topic.postMessage("Gaurav Knock Down Seemran");
+		
+	}
+
+}
+
+
+```
