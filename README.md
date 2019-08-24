@@ -1,6 +1,129 @@
 # _designPattern_with_example
 NOTE: this is not a bible. In this repo each design pattern has different example. so that we can better understand the design and best use cases.
 
+# SRP
+
+> Voilate The Rule
+
+```java
+
+package playground;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.net.URL;
+import java.util.ArrayList;
+
+class Journal {
+	private ArrayList<String> entries = new ArrayList<>();
+	private static int count = 0;
+	
+	public void addEntry(String text) {
+		entries.add(" "  + (count++) + " : " + text);
+	}
+	
+	public void removeEntry(int index) {
+		entries.remove(index);
+	}
+	/*************************************/
+	/* These methods should not belong to this class. this are persistence methods and belong to difference class
+		REMEMBER: "separation of concern"
+	*/
+	/*************************************/
+	public void saveToFile(Journal journal, String filename, boolean overwrite) 
+			throws FileNotFoundException {
+		try (PrintStream out = new PrintStream(filename)) {
+			out.println(toString());
+		}
+	}
+	
+	public void load(String filename) {}
+	public void load(URL url) {}
+	/*************************************/
+	@Override
+	public String toString() {
+		return String.join(System.lineSeparator(), entries);
+	}
+}
+
+public class Main {
+
+	public static void main(String[] args) throws Exception {
+		Journal j = new Journal();
+		j.addEntry("I kissed my wife.");
+		j.addEntry("Me and my wife ate pizza togather");
+		System.out.println(j);
+	}
+
+}
+
+```
+> Right Way
+
+```java
+
+package playground;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+
+class Journal {
+	private ArrayList<String> entries = new ArrayList<>();
+	private static int count = 0;
+	
+	public void addEntry(String text) {
+		entries.add(" "  + (count++) + " : " + text);
+	}
+	
+	public void removeEntry(int index) {
+		entries.remove(index);
+	}
+		
+	@Override
+	public String toString() {
+		return String.join(System.lineSeparator(), entries);
+	}
+}
+
+
+class Persistence<ANYTYPE> {
+	public void saveToFile(ANYTYPE doc, String filename, boolean overwrite) 
+			throws FileNotFoundException {
+		if(overwrite || new File(filename).exists()) {
+			try (PrintStream out = new PrintStream(filename)) {
+				out.println(doc.toString());
+			}
+		}
+	}
+	
+	// public ANYTYPE load(String filename) {}
+	// public ANYTYPE load(URL url) {}
+}
+
+public class Main {
+
+	public static void main(String[] args) throws Exception {
+		Journal j = new Journal();
+		j.addEntry("I kissed my wife.");
+		j.addEntry("Me and my wife ate pizza togather");
+		System.out.println(j);
+		
+		Persistence<Journal> p = new Persistence<Journal>();
+		String filename = "c:\\temp\\journal.txt";
+		p.saveToFile(j, filename, true);
+		
+		Runtime.getRuntime().exec("notepad.exe " + filename);
+		
+	}
+
+}
+
+
+```
+
 ## Cheat Sheet
 
 ![cheatSheet](https://i.pinimg.com/originals/02/32/6a/02326ab87918f1ac3fa8305310919176.jpg)
