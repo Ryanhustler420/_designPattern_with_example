@@ -124,6 +124,276 @@ public class Main {
 
 ```
 
+# OCP
+
+`` Open Close Principle With Specification Pattern which is not GoF Design Pattern. It's an enterprise pattern. OCP + Specifications``
+
+> Voilating The Rule Code
+
+```java
+
+package playground;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+enum Color {
+	RED,
+	BLUE,
+	GREEN
+}
+
+enum Size {
+	SMALL,
+	MEDIUM,
+	LARGE,
+	YUGE
+}
+
+class Product {
+	public String name;
+	public Color color;
+	public Size size;
+	
+	public Product(String name, Color color, Size size) {
+		super();
+		this.name = name;
+		this.color = color;
+		this.size = size;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public Size getSize() {
+		return size;
+	}
+
+	public void setSize(Size size) {
+		this.size = size;
+	}
+}
+
+class ProductFilter {
+	
+	public Stream<Product> filterByColor(List<Product> products, Color color) {
+		return products.stream().filter(p -> p.color == color);
+	}
+	
+	public Stream<Product> filterBySize(List<Product> products, Size size) {
+		return products.stream().filter(p -> p.size == size);
+	}
+	
+	public Stream<Product> filterBySizeAndColor(List<Product> products, Size size, Color color) {
+		return products.stream().filter(p -> p.size == size && p.color == color);
+	}
+	
+	// we have to modify this file again and again if any requirements comes
+	// which is not recommended in OCP
+}
+
+
+public class Main {
+
+	// Open Close Principle With Specification Pattern which is not
+	// GoF Design Pattern. It's an enterprise pattern
+	
+	// OCP + Specifications
+	
+	public static void main(String[] args) {
+		Product apple = new Product("Apple", Color.GREEN, Size.SMALL);
+		Product tree = new Product("Tree", Color.GREEN, Size.SMALL);
+		Product house = new Product("House", Color.BLUE, Size.LARGE);
+		
+		List<Product> products = Arrays.asList(apple, tree, house);
+		ProductFilter pf = new ProductFilter();
+		
+		System.out.println("Green products (old):");
+		pf.filterByColor(products, Color.GREEN)
+		.forEach(p -> System.out.println(
+				" - " + p.name + " is green"));
+
+	}
+
+}
+
+```
+
+> The Right Way
+
+```java
+
+package playground;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
+enum Color {
+	RED,
+	BLUE,
+	GREEN
+}
+
+enum Size {
+	SMALL,
+	MEDIUM,
+	LARGE,
+	YUGE
+}
+
+class Product {
+	public String name;
+	public Color color;
+	public Size size;
+	
+	public Product(String name, Color color, Size size) {
+		super();
+		this.name = name;
+		this.color = color;
+		this.size = size;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+	public Size getSize() {
+		return size;
+	}
+
+	public void setSize(Size size) {
+		this.size = size;
+	}
+}
+
+/* we will create two new interfaces */
+	
+interface Specification<T> {
+	boolean isSatisfied(T item);
+}
+
+interface Filter<T> {
+	Stream<T> filter(List<T> items, Specification<T> spec);
+}
+
+class ColorSpecification implements Specification<Product> {
+
+	private Color color;
+	
+	public ColorSpecification(Color color) {
+		this.color = color;
+	}
+	
+	@Override
+	public boolean isSatisfied(Product item) {
+		return item.color == color;
+	}
+	
+}
+
+class SizeSpecification implements Specification<Product> {
+
+	private Size size;
+	
+	public SizeSpecification(Size size) {
+		this.size = size;
+	}
+	
+	@Override
+	public boolean isSatisfied(Product item) {
+		return item.size == size;
+	}
+	
+}
+
+class BetterFilter implements Filter<Product> {
+
+	@Override
+	public Stream<Product> filter(List<Product> items, Specification<Product> spec) {
+		return items.stream().filter(p -> spec.isSatisfied(p));
+	}
+	
+}
+
+class AndSpecification<T> implements Specification<T> {
+
+	private Specification<T> left;
+	private Specification<T> right;
+		
+	public AndSpecification(Specification<T> left, Specification<T> right) {
+		super();
+		this.left = left;
+		this.right = right;
+	}
+
+	@Override
+	public boolean isSatisfied(T item) {
+		return left.isSatisfied(item) && right.isSatisfied(item);
+	}
+	
+}
+
+/* ************** */
+
+public class Main {
+
+	// Open Close Principle With Specification Pattern which is not
+	// GoF Design Pattern. It's an enterprise pattern
+	
+	// OCP + Specifications
+	
+	public static void main(String[] args) {
+		Product apple = new Product("Apple", Color.GREEN, Size.SMALL);
+		Product tree = new Product("Tree", Color.GREEN, Size.SMALL);
+		Product house = new Product("House", Color.BLUE, Size.LARGE);
+		
+		List<Product> products = Arrays.asList(apple, tree, house);
+
+		System.out.println("Green products (new):");
+		BetterFilter bf = new BetterFilter();
+		bf.filter(products, new ColorSpecification(Color.GREEN)).forEach(p -> 
+				System.out.println(" - " + p.name + " is green"));
+		
+		System.out.println("Large blue items:");
+		bf.filter(products, new AndSpecification<>(
+				new ColorSpecification(Color.BLUE),
+				new SizeSpecification(Size.LARGE)
+			)).forEach(p -> 
+			System.out.println(" - " + p.name + " is green"));
+	}
+
+}
+
+
+```
+
 ## Cheat Sheet
 
 ![cheatSheet](https://i.pinimg.com/originals/02/32/6a/02326ab87918f1ac3fa8305310919176.jpg)
