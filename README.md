@@ -394,6 +394,152 @@ public class Main {
 
 ```
 
+# LSP (Liskov Substitution Principle)
+
+```java
+
+package playground;
+
+class Rectangle {
+	protected int width, height;
+
+	public Rectangle() {
+
+	}
+
+	public Rectangle(int width, int height) {
+		this.width = width;
+		this.height = height;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		// here we simply set the height without modifying any other properties
+		this.height = height;
+	}
+
+	public int getArea() {
+		return width * height;
+	}
+
+	@Override
+	public String toString() {
+		return "Rectangle{" + "width=" + width + ", height=" + height + "}";
+	}
+}
+
+class Square extends Rectangle {
+	public Square() {
+	}
+
+	public Square(int size) {
+		width = height = size;
+	}
+
+	// this below method violating THE Liskov of substitution principle. (LSP)
+
+	@Override
+	public void setWidth(int width) {
+		super.setWidth(width);
+		super.setHeight(width);
+	}
+
+	// this is very bed setter because it make sense for rectangle but not square
+	// rectangle
+	// even though square is also a rectangle.
+
+	@Override
+	public void setHeight(int height) {
+		// this method implementation is wrong and violating LSP.
+		super.setHeight(height);
+		super.setWidth(height);
+	}
+
+	// solution:-
+	public boolean isSquare() {
+		return height == width;
+	}
+}
+
+// this is also a solution to create A factory class
+class RectangleFactory {
+	public static Rectangle newRectangle(int width, int height) {
+		return new Rectangle(width, height);
+	}
+
+	public static Rectangle newSquare(int side) {
+		return new Rectangle(side, side);
+	}
+}
+
+public class Main {
+
+	/*
+	 * DEFINITION:-
+	 * 
+	 * The Liskov Substitution Principle (LSP): functions that use pointers to base
+	 * classes must be able to use objects of derived classes without knowing it.
+	 * ... The Liskov Substitution Principle is a way of ensuring that inheritance
+	 * is used correctly.
+	 * 
+	 */
+
+	/*
+	 * What we want to achieve
+	 * 
+	 * its all about making sure if you have a method such as 'useIt(Rectangle r)' which takes
+	 * a Rectangle it works correctly even if your pass some Derived class of
+	 * Rectangle or some inheritor of Rectangle.
+	 * 
+	 * So, How can you improve the situation solution would be we don't need a
+	 * square class at all, but we make a detection whether a Rectangle is Square or
+	 * not
+	 * 
+	 * goto: solution comment
+	 * 
+	 */
+
+	static void useIt(Rectangle r) {
+		int width = r.getWidth();
+		r.setHeight(10);
+		// area = width * 10;
+		System.out.println("Expected area of " + (width * 10) + ", got " + r.getArea());
+	}
+
+	public static void main(String[] args) {
+		Rectangle rc = new Rectangle(2, 3);
+		useIt(rc);
+		// Expected area of 20, got 20
+		// this works fine. but wont work if we use a derived class
+
+		// Below Code Violating The LSP. because the way we are using setter in square
+		// class
+		// is WRONG.
+		Rectangle sq = new Square();
+		sq.setWidth(5);
+		useIt(sq);
+		// Expected area of 50, got 100 <- unexpected dude :(
+	}
+
+}
+
+
+
+
+```
+
+
 ## Cheat Sheet
 
 ![cheatSheet](https://i.pinimg.com/originals/02/32/6a/02326ab87918f1ac3fa8305310919176.jpg)
