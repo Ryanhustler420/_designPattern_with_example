@@ -1430,3 +1430,93 @@ public class Main {
 
 
 ```
+
+## Fluent Builder Inheritance with Recursive Generics
+
+> Person.java
+
+```java
+
+class Person
+{
+	public String name;
+	public String position;
+	
+	
+	@Override
+	public String toString() {
+		return "Person [name=" + name + ", position=" + position + "]";
+	}
+	
+}
+
+```
+> PersonBuilder.java
+
+```java
+
+class PersonBuilder<SELF extends PersonBuilder<SELF>>
+{
+	protected Person person = new Person();
+	
+	public SELF withName(String name)
+	{
+		person.name = name;
+		return self();
+	}
+
+	public Person build()
+	{
+		return person;
+	}
+	
+	@SuppressWarnings("unchecked")
+	protected SELF self() {
+		return (SELF) this;
+	}
+	
+}
+
+```
+
+> EmployeeBuilder.java
+
+```java
+
+class EmployeeBuilder extends PersonBuilder<EmployeeBuilder>
+{
+	public EmployeeBuilder worksAt(String position)
+	{
+		person.position = position;
+		return self();
+	}
+
+	@Override
+	protected EmployeeBuilder self() {
+		// TODO Auto-generated method stub
+		return this;
+	}
+	
+}
+
+
+```
+
+
+
+> Main.java
+```java
+
+public class Main {
+
+	public static void main(String[] args) {
+		// recursive generics: to preserve to fluent interface
+		EmployeeBuilder eb = new EmployeeBuilder();
+		Person p = eb.withName("Gaurav").worksAt("Developer").build();
+		System.out.println(p);		
+	}
+
+}
+
+
+```
