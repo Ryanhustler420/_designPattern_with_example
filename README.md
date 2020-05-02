@@ -1520,3 +1520,130 @@ public class Main {
 
 
 ```
+
+## Build Complicated Bbject Via Multiple Builders
+
+> Person.java
+
+```java
+
+class Person {
+	// address
+	public String streetAddress, postCode, city;
+
+	// emplyement
+	public String companyName, position;
+	public int annualIncode;
+
+	@Override
+	public String toString() {
+		return "Person [streetAddress=" + streetAddress + ", postCode=" + postCode + ", city=" + city + ", companyName="
+				+ companyName + ", position=" + position + ", annualIncode=" + annualIncode + "]";
+	}
+}
+
+```
+
+> PersonBuilder.java  **Working as builder facade**
+
+```java
+
+class PersonBuilder {
+	protected Person person = new Person();
+
+	public PersonAddressBuilder lives() {
+		return new PersonAddressBuilder(person);
+	}
+
+	public PersonJobBuilder works() {
+		return new PersonJobBuilder(person);
+	}
+
+	public Person build() {
+		return person;
+	}
+}
+
+```
+
+> PersonAddressBuilder.java
+
+```java
+
+class PersonAddressBuilder extends PersonBuilder {
+
+	public PersonAddressBuilder(Person person) {
+		this.person = person;
+	}
+
+	public PersonAddressBuilder at(String streetAddress) {
+		person.streetAddress = streetAddress;
+		return this;
+	}
+
+	public PersonAddressBuilder withPostCode(String postCode) {
+		person.postCode = postCode;
+		return this;
+	}
+
+	public PersonAddressBuilder in(String city) {
+		person.city = city;
+		return this;
+	}
+
+}
+
+```
+
+> PersonJobBuilder.java
+
+```java
+
+class PersonJobBuilder extends PersonBuilder {
+	public PersonJobBuilder(Person person) {
+		this.person = person;
+	}
+
+	public PersonJobBuilder at(String companyName) {
+		this.person.companyName = companyName;
+		return this;
+	}
+
+	public PersonJobBuilder asA(String position) {
+		person.position = position;
+		return this;
+	}
+
+	public PersonJobBuilder earning(int annualIncome) {
+		person.annualIncode = annualIncome;
+		return this;
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main() {
+	public static void main(String[] args) {
+	
+		// jumps from one subBuilder to another subBuilder
+		PersonBuilder pb = new PersonBuilder();
+		Person person = pb
+				.lives()
+					.at("Korol Bhag, Street 6")
+					.in("Delhi")
+					.withPostCode("1234")
+				.works()
+					.at("MatchBox Inc")
+					.asA("CEO")
+					.earning(150000)
+				.build();
+		System.out.println(person);	
+	
+	}
+}
+```
