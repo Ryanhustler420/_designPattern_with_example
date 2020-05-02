@@ -1378,10 +1378,17 @@ class HtmlBuilder
 		root.name = rootName;
 	}
 	
-	public void addChild(String childName, String childText)
+	/* public void addChild(String childName, String childText)
 	{
 		HtmlElement e = new HtmlElement(childName, childText);
 		root.elements.add(e);
+	} */
+	
+	public HtmlBuilder addChild(String childName, String childText)
+	{
+		HtmlElement e = new HtmlElement(childName, childText);
+		root.elements.add(e);
+		return this;
 	}
 	
 	public void clear() 
@@ -1412,6 +1419,11 @@ public class Main {
 		builder.addChild("li", "Hello");
 		builder.addChild("li", "World");
 		System.out.println(builder);	
+		
+		// Fluent Builder i.e method chaining
+		HtmlBuilder builder2 = new HtmlBuilder("ul");
+		builder2.addChild("li", "Hello").addChild("li", "World");
+		System.out.println(builder2);
 	}
 
 }
