@@ -1647,3 +1647,108 @@ public class Main() {
 	}
 }
 ```
+
+# The Facade Pattern
+
+Provides a unified interface to a set of interfaces in a subsystem. Facade defines a higer-level interface that makes the subsystem easier to use. ***(When you have less depandency, use facade i.e. black box)***
+
+> Below image is not Object Oriented Design
+
+![NotOODesignImage](https://res.cloudinary.com/dcalvdelc/image/upload/v1588565119/3.1_Facade_Pattern.png.png)
+
+
+> CPU.java
+
+```java
+
+class CPU {
+	public void freeze()
+	{
+		System.out.println("Computer freezing\u2026 ");
+	}
+	
+	public void jump(long position)
+	{
+		System.out.println("Jumping to\u2026 " + position);
+	}
+	
+	public void execute()
+	{
+		System.out.println("Computer executing commands\u2026 ");
+	}
+}
+
+```
+
+> HardDrive.java
+
+```java
+
+
+class HardDrive {
+	public byte[] read(long Iba, int size)
+	{
+		return new byte[] {'f', 'z'};
+	}
+}
+
+```
+
+> Memory.java
+
+```java
+
+class Memory {
+	public void load(long position, byte[] data)
+	{
+		System.out.println("Added item to memory\u2026 " + position);
+	}
+}
+
+```
+
+> ComputerFacade.java
+
+```java
+
+class ComputerFacade {
+	private CPU processor;
+	private Memory ram;
+	private HardDrive hd;
+	
+	public ComputerFacade(CPU processor, Memory ram, HardDrive hd) {
+		super();
+		this.processor = processor;
+		this.ram = ram;
+		this.hd = hd;
+	}
+	
+	public void start()
+	{
+		processor.freeze();
+		ram.load(0xbc, hd.read(3456, 89));
+		processor.jump(0xbc);
+		processor.execute();
+	}
+	
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+	
+	public static void main(String[] args) {
+		CPU cpu = new CPU();
+		Memory memory = new Memory();
+		HardDrive hd = new HardDrive();
+		ComputerFacade cf = new ComputerFacade(cpu, memory, hd);
+		cf.start();
+	}
+}
+
+```
+
