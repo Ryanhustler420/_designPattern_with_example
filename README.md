@@ -1752,3 +1752,253 @@ public class Main {
 
 ```
 
+# The Template Method Design Pattern
+
+```
+Very simple yet very important,
+whenever we have common methods, algorithm, strategy which can be abstract out
+so that the responsibly is under sub classes
+```
+
+> This is the problem with repeatation of method
+![image1](https://res.cloudinary.com/dcalvdelc/image/upload/v1588571251/4.2_TemplateDesignPattern2.png.png)
+
+> We can solve this with `The Template Method Design Pattern`
+![image2](https://res.cloudinary.com/dcalvdelc/image/upload/v1588571251/4.1_TemplateDesignPattern1.png.png)
+
+##### Example 1 : Little More Complex...
+
+> GameController.java
+
+```java
+
+interface GameController {
+	void initGame();
+	void playGame();
+	void endGame();
+	void start() throws InterruptedException;
+	void printClassInformation();
+	void destroy();
+}
+
+```
+
+> Game.java
+
+```java
+
+abstract class Game<SELF extends Game<SELF>> implements GameController {
+	protected String className;
+
+	public Game() {
+		className = getSelf().getClass().getSimpleName();
+	}
+
+	public void start() throws InterruptedException {
+		initGame();
+		TimeUnit.SECONDS.sleep(5);
+		playGame();
+		TimeUnit.SECONDS.sleep(5);
+		if (playerConnected())openLobby();
+		TimeUnit.SECONDS.sleep(5);
+		endGame();
+	}
+
+	@SuppressWarnings("unchecked")
+	protected SELF getSelf() {
+		return (SELF) this;
+	}
+
+	// The Hooked-On Template Method
+	public abstract void printClassInformation();
+	public abstract void openLobby();
+
+	boolean playerConnected() {
+		return true;
+	}
+
+	/* gives a default implementation */
+	public void destroy() {
+		System.out.println(className + " is distroyed");
+	}
+	
+}
+
+```
+
+> EndlessRunnerGame.java
+
+```java
+
+class EndlessRunnerGame extends Game<EndlessRunnerGame> {
+
+	@Override
+	public void initGame() {
+		print("initialize");
+	}
+
+	@Override
+	public void playGame() {
+		print("playing");
+	}
+
+	@Override
+	public void endGame() {
+		print("ending");
+	}
+
+	@Override
+	public void start() throws InterruptedException {
+		print("starting");
+		super.start();
+	}
+
+	@Override
+	public void printClassInformation() {
+		// parent has no body, so here we will have our own logic...
+		System.out.println(className + " is a child of Game abstract class\u2026");
+	}
+	
+	@Override
+	public void openLobby() {
+		System.out.println("Opening lobby for hosting\u2026");
+	}
+
+	// adding more code to default methods
+	@Override
+	public void destroy() {
+		// this code will run before the parent code
+		System.out.println(className + " controller has been removed successfully,");
+		super.destroy(); // this is parent code
+	}
+	
+	// Add more methods...
+	private void print(String message) {
+		System.out.println(String.format("%s, %s\u2026", className, message));
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		GameController gc = new EndlessRunnerGame();
+		gc.start();
+		System.out.println("===================");
+		gc.printClassInformation();
+		gc.destroy();
+	}
+
+}
+
+```
+
+
+##### Example 2 : Simple...
+
+```java
+
+abstract class Game {
+
+	abstract void initGame();
+	abstract void plagGame();
+	abstract void endGame();
+	
+	public void start() {
+		initGame();
+		playGame();
+		endGame();
+	}
+
+	// The Hooked-On Template Method
+	public abstract void printClassInformation();
+	public abstract void openLobby();
+
+	/* gives a default implementation */
+	public void destroy() {
+		System.out.println("Game is distroyed");
+	}
+	
+}
+
+
+```
+
+> EndlessRunnerGame.java
+
+```java
+
+class EndlessRunnerGame extends Game {
+
+	@Override
+	public void initGame() {
+		print("initialize");
+	}
+
+	@Override
+	public void playGame() {
+		print("playing");
+	}
+
+	@Override
+	public void endGame() {
+		print("ending");
+	}
+
+	@Override
+	public void start() throws InterruptedException {
+		print("starting game...");
+		super.start();
+	}
+
+	@Override
+	public void printClassInformation() {
+		// parent has no body, so here we will have our own logic...
+		System.out.println("EndlessRunner is a child of Game abstract class\u2026");
+	}
+	
+	@Override
+	public void openLobby() {
+		System.out.println("Opening lobby for hosting\u2026");
+	}
+
+	// adding more code to default methods
+	@Override
+	public void destroy() {
+		// this code will run before the parent code
+		System.out.println("EndlessRunner controller has been removed successfully,");
+		super.destroy(); // this is parent code
+	}
+	
+	// Add more methods...
+	private void print(String message) {
+		System.out.println(String.format("%s, %s\u2026", "EndlessRunner", message));
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) {
+		GameController gc = new EndlessRunnerGame();
+		gc.start();
+		gc.printClassInformation();
+		gc.destroy();
+	}
+	
+}	
+
+
+```
