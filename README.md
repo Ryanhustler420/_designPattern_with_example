@@ -2264,6 +2264,174 @@ public class Main {
 ```
 
 
+# State Design Design Pattern
+
+``allows an object to alter it's behavior when it's internal state changes. The object will appear to change it's class.``
+
+- Image 1
+![Image1](https://res.cloudinary.com/dcalvdelc/image/upload/v1588593730/7.2_statePattern.png.png)
+
+- Image 2
+![Image2](https://res.cloudinary.com/dcalvdelc/image/upload/v1588593729/7.1_General-StatePatternDiagram.png.png)
+ 
+First, Obvious Solution For State Design Pattern (Pain in the ass)
+
+> SodaMachine.java
+
+```java
+
+class SodaMachine {
+	
+	// STATES
+	final static int SOLD_OUT = 0;
+	final static int NO_MONEY = 1;
+	final static int HAS_MONEY = 2;
+	final static int SOLD = 3;
+
+	int state = SOLD_OUT;
+	int count = 0;
+
+	public SodaMachine(int count) {
+		super();
+		this.count = count;
+		if (count > 0)
+			state = NO_MONEY;
+
+		System.out.println("Welcome to our soda vending machine");
+		System.out.println("Inventory is " + count + " Sodas");
+		System.out.println("Insert a $ bill to get started...");
+		System.out.println("___________________________________________");
+	}
+
+	// Actions
+	public void insertMoney() {
+		if (state == HAS_MONEY) {
+			System.out.println("You can't insert another $ bill");
+		} else if (state == NO_MONEY) {
+			state = HAS_MONEY;
+			System.out.println("You inserted a $");
+		} else if (state == SOLD_OUT) {
+			System.out.println("The machine is sold out.");
+		} else if (state == SOLD) {
+			System.out.println("Please wait! We are aleardy giving you a soda!");
+		}
+	}
+
+	public void ejectMoney() {
+		if (state == HAS_MONEY) {
+			System.out.println("Returning $ bill");
+			state = NO_MONEY;
+		} else if (state == NO_MONEY) {
+			System.out.println("You haven't inserted a $ bill");
+		} else if (state == SOLD) {
+			System.out.println("Aleardy selected soda!");
+		} else if (state == SOLD_OUT) {
+			System.out.println("Machine sold out!");
+		}
+	}
+
+	public void selectSoda() {
+		if (state == SOLD) {
+			System.out.println("Dispanse your soda as we speak... Enjoy");
+		} else if (state == NO_MONEY) {
+			System.out.println("You select soda, but money first, buddy!");
+		} else if (state == SOLD_OUT) {
+			System.out.println("You're outta luck - No sodas left :(");
+		} else if (state == HAS_MONEY) {
+			System.out.println("You selected a soda...");
+			state = SOLD;
+			dispence();
+		}
+	}
+
+	public void dispence() {
+		if (state == SOLD) {
+			System.out.println("Dispanse your soda as we speak... Enjoy");
+			count -= 1;
+			if (count == 0) {
+				System.out.println("sorry, out of sodas!");
+				state = SOLD_OUT;
+			} else
+				state = NO_MONEY;
+		} else if (state == NO_MONEY) {
+			System.out.println("Please inserted a $ bill");
+		} else if (state == SOLD_OUT) {
+			System.out.println("Machine sold out!");
+		} else if (state == HAS_MONEY) {
+			System.out.println("No soda dispanse");
+		}
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		SodaMachine sodaMachine = new SodaMachine(10);
+		sodaMachine.insertMoney();
+		sodaMachine.selectSoda();
+
+		System.out.println("Inventory has: " + sodaMachine.count + " sodas");
+		System.out.println("___________________");
+
+		sodaMachine.insertMoney();
+		sodaMachine.ejectMoney();
+		sodaMachine.selectSoda();
+
+		System.out.println("Inventory has: " + sodaMachine.count + " sodas");
+		System.out.println("___________________");
+
+		sodaMachine.insertMoney();
+		sodaMachine.selectSoda();
+		sodaMachine.insertMoney();
+		sodaMachine.selectSoda();
+		sodaMachine.ejectMoney();
+
+		System.out.println("Inventory has: " + sodaMachine.count + " sodas");
+		System.out.println("___________________");
+		
+	}
+	
+}
+
+// OUTPUT:-
+
+/*
+
+Welcome to our soda vending machine
+Inventory is 10 Sodas
+Insert a $ bill to get started...
+___________________________________________
+You inserted a $
+You selected a soda...
+Dispanse your soda as we speak... Enjoy
+Inventory has: 9 sodas
+___________________
+You inserted a $
+Returning $ bill
+You select soda, but money first, buddy!
+Inventory has: 9 sodas
+___________________
+You inserted a $
+You selected a soda...
+Dispanse your soda as we speak... Enjoy
+You inserted a $
+You selected a soda...
+Dispanse your soda as we speak... Enjoy
+You haven't inserted a $ bill
+Inventory has: 7 sodas
+___________________
+
+*/
+
+```
 
 ```
 ***********************************************************************************************
