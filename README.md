@@ -2140,3 +2140,21 @@ public class Main {
 }
 
 ```
+> output
+
+```
+Bypassing the connection using vpn, with route: 188 SSL: true
+…Waiting for connection
+…Waiting for connection
+…Waiting for connection
+…Waiting for connection
+…Waiting for connection
+…Waiting for connection
+Connection opened successfully
+Creating a messge for ping testing…
+to: raisehand.io, message: hi, from user
+Ping test passed…
+Checking new messages in inbox…
+No new messages!!!
+All done...
+```
