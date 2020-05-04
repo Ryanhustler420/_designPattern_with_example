@@ -2003,6 +2003,268 @@ public class Main {
 
 ```
 
+# Iterator Design Pattern
+
+![image](https://res.cloudinary.com/dcalvdelc/image/upload/v1588590405/Iterator_Design_Pattern.png)
+
+> Iterator.java
+
+```java
+
+interface Iterator {
+	boolean hasNext();
+	Object next();
+}
+
+```
+
+> Product.java
+
+```java
+
+class Product {
+	private String name;
+	private String description;
+	private double price;
+
+	public Product(String name, String description, double price) {
+		super();
+		this.name = name;
+		this.description = description;
+		this.price = price;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	public void setPrice(double price) {
+		this.price = price;
+	}
+
+}
+
+```
+
+> GeekyStoreIterator.java
+
+```java
+class GeekyStoreIterator implements Iterator {
+
+	ArrayList<Product> catalog;
+	int position = 0;
+
+	public GeekyStoreIterator(ArrayList<Product> catalog) {
+		this.catalog = catalog;
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (position >= catalog.size() || catalog.get(position) == null)
+			return false;
+		return true;
+	}
+
+	@Override
+	public Object next() {
+		Product product = catalog.get(position);
+		position += 1;
+		return product;
+	}
+
+}
+```
+
+> DevStoreIterator.java
+
+```java
+
+class DevStoreIterator implements Iterator {
+
+	Product[] catalog;
+	int position = 0;
+
+	public DevStoreIterator(Product[] catalog) {
+		this.catalog = catalog;
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (position >= catalog.length || catalog[position] == null)
+			return false;
+		return true;
+	}
+
+	@Override
+	public Object next() {
+		Product product = catalog[position];
+		position += 1;
+		return product;
+	}
+
+}
+
+```
+
+> CatalogCreator.java
+
+```java
+
+interface CatalogCreator {
+	Iterator createIterator();
+}
+
+```
+
+> DevStoreCatalog.java
+
+```java
+
+class DevStoreCatalog implements CatalogCreator {
+
+	private static final int MAX_ITEM = 4;
+	private int numberOfProducts = 0;
+	private Product[] catalog;
+
+	public DevStoreCatalog() {
+		catalog = new Product[MAX_ITEM];
+
+		addItem("C++ is NOT dead. Yet!", "T-Shirt", 30.99);
+		addItem("Java Rocks. Yes", "Silky mouse-pad", 10.99);
+		addItem("Java Design Patterns", "Book - A must!", 130.99);
+		addItem("Web development cookbook", "The best web development cookbook  - 2018", 18.99);
+	}
+
+	public void addItem(String name, String description, double price) {
+		Product product = new Product(name, description, price);
+		if (numberOfProducts >= MAX_ITEM) {
+			System.out.println("Catalog is Full - can't add products.");
+		} else {
+			catalog[numberOfProducts] = product;
+			numberOfProducts += 1;
+		}
+	}
+
+	public Product[] getCatalog() {
+		return catalog;
+	}
+
+	@Override
+	public Iterator createIterator() {
+		return new DevStoreIterator(catalog);
+	}
+
+}
+
+```
+
+> GeekyStoreCatalog.java
+
+
+```java
+class GeekyStoreCatalog implements CatalogCreator {
+	private ArrayList<Product> catalog;
+
+	public GeekyStoreCatalog() {
+		catalog = new ArrayList<>();
+
+		addItem("Superman Comic", "The best book in town", 12.99);
+		addItem("Batman Comic", "Ok, But still good", 11.99);
+		addItem("Star Wars", "Can't lice without it", 39.99);
+		addItem("Jedi T-Shirt", "Gotta Have it", 29.99);
+	}
+
+	public void addItem(String name, String description, double price) {
+		Product product = new Product(name, description, price);
+		catalog.add(product);
+	}
+
+	public ArrayList<Product> getCatalog() {
+		return catalog;
+	}
+
+	@Override
+	public Iterator createIterator() {
+		return new GeekyStoreIterator(getCatalog());
+	}
+}
+```
+
+> Seller.java
+
+```java
+
+class Seller {
+
+	CatalogCreator catalogCreator;
+
+	public Seller(CatalogCreator catalogCreator) {
+		this.catalogCreator = catalogCreator;
+	}
+
+	public void printCatalog() {
+		Iterator itr = catalogCreator.createIterator();
+		System.out.println("Printing Catalog: ");
+		printCatalog(itr);
+	}
+
+	private void printCatalog(Iterator itr) {
+		while (itr.hasNext()) {
+			Product product = (Product) itr.next();
+			System.out.print(product.getName() + ", ");
+			System.out.print(product.getDescription() + " ");
+			System.out.println(product.getPrice());
+		}
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) {
+	
+		
+		DevStoreCatalog devStoreCatalog = new DevStoreCatalog();
+		GeekyStoreCatalog geekyStoreCatalog = new GeekyStoreCatalog();
+
+		Seller seller = new Seller(geekyStoreCatalog);
+		seller.printCatalog();
+
+		System.out.println("__________");
+
+		seller = new Seller(devStoreCatalog);
+		seller.printCatalog();
+
+	}
+
+}
+
+```
+
+
+
 ```
 ***********************************************************************************************
 ***********************************************************************************************
@@ -2011,6 +2273,9 @@ public class Main {
 ***********************************************************************************************
 
 ```
+> Things we should know
+
+- Whenever we use same method signature than pull that method and store in an interface, that woul be nice
 
 ```java
 
