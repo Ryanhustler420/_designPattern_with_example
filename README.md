@@ -2002,3 +2002,141 @@ public class Main {
 
 
 ```
+
+```
+***********************************************************************************************
+***********************************************************************************************
+> PLAYING WITH DESIGN, MAKING MISTAKES, CHECKING HOW THINGS WORK
+***********************************************************************************************
+***********************************************************************************************
+
+```
+
+```java
+
+
+interface IProxyChain {
+	void bypassCall(int hex, boolean safe); // hex = 0xbc, safe = true;
+}
+
+interface IMessenger<MESESAGE, TO> {
+	void createMessage(MESESAGE message, TO to);
+
+	void createMMS();
+}
+
+interface ILogDumper {
+	void printTrace();
+}
+
+interface IInternet<D, C, DialUp> {
+
+	void init() throws InterruptedException;  // call this interface methods in sequence
+
+	IProxyChain openConnection();
+
+	boolean dialUp(DialUp number); // return true after get connected to the internet
+
+	IMessenger<D, C> createMessage();
+
+	void checkMessage(); // probably print simple message `no new message`
+
+	ILogDumper closeConnection();
+}
+
+class MessangerUI<D extends String, C extends String> implements IMessenger<D, C> {
+
+	@Override
+	public void createMessage(D message, C to) {
+		System.out.println(String.format("to: %s, message: %s", to, message));
+	}
+
+	@Override
+	public void createMMS() {
+		System.out.println("Creating mms for you\u2026 waiting");
+	}
+
+}
+
+class ByPasser implements IProxyChain {
+	@Override
+	public void bypassCall(int hex, boolean safe) {
+		System.out.println("Bypassing the connection using vpn, with route: " + hex + " SSL: " + safe);
+	}
+}
+
+class DumpLogger implements ILogDumper {
+	@Override
+	public void printTrace() {
+		System.out.println("trace clear\u2026");
+	}
+}
+
+class Web implements IInternet<String, String, Integer> {
+
+	private int itr = 0;
+	private int maxItr = 5;
+	
+	private boolean isConnected = false;
+	private ByPasser bp = new ByPasser();
+	private DumpLogger dl = new DumpLogger();
+
+	@Override
+	public IProxyChain openConnection() {
+		return bp;
+	}
+
+	@Override
+	public ILogDumper closeConnection() {
+		return dl;
+	}
+
+	@Override
+	public boolean dialUp(Integer number) {
+		return itr >= maxItr;
+	}
+
+	@Override
+	public void init() throws InterruptedException {
+		openConnection().bypassCall(0xbc, true);;
+		while (!isConnected) {
+			System.out.println("\u2026Waiting for connection");
+			isConnected = dialUp(199);
+			TimeUnit.SECONDS.sleep(2);
+			itr++;
+		}
+		if(isConnected) System.out.println("Connection opened successfully");
+		System.out.println("Creating a messge for ping testing\u2026");
+		TimeUnit.SECONDS.sleep(2);
+		createMessage().createMessage("hi, from user", "raisehand.io");;
+		TimeUnit.SECONDS.sleep(3);
+		System.out.println("Ping test passed\u2026");
+		System.out.println("Checking new messages in inbox\u2026");
+		TimeUnit.SECONDS.sleep(2);
+		checkMessage();
+		closeConnection();
+		System.out.println("All done...");
+	}
+
+	@Override
+	public void checkMessage() {
+		System.out.println("No new messages!!!");
+	}
+
+	@Override
+	public IMessenger<String, String> createMessage() {
+		return new MessangerUI<String, String>();
+	}
+
+}
+
+public class Main {
+
+	public static void main(String[] args)throws InterruptedException {
+		Web g = new Web();
+		g.init();
+	}
+	
+}
+
+```
