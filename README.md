@@ -2066,10 +2066,14 @@ class ByPasser implements IProxyChain {
 }
 
 class DumpLogger implements ILogDumper {
+	// more fields;
+	
 	@Override
 	public void printTrace() {
 		System.out.println("trace clear\u2026");
 	}
+	
+	// more methods to manupulate the message
 }
 
 class Web implements IInternet<String, String, Integer> {
