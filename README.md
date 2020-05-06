@@ -2274,7 +2274,7 @@ public class Main {
 - Image 2
 ![Image2](https://res.cloudinary.com/dcalvdelc/image/upload/v1588593729/7.1_General-StatePatternDiagram.png.png)
  
-First, Obvious Solution For State Design Pattern (Pain in the ass)
+**First, Obvious Solution For State Design Pattern (Pain in the ass)**
 
 > SodaMachine.java
 
@@ -2433,6 +2433,350 @@ ___________________
 
 ```
 
+**Second, Solution With State Design Pattern**
+
+> State.java
+
+```java
+
+interface State
+{
+	void insertMoney();
+	void ejectMoney();
+	void select();
+	void dispense();
+}
+
+```
+
+> SodaVendingMachine.java
+
+```java
+
+class SodaVendingMachine
+{
+	State soldOutState;
+	State noMoneyState;
+	State hasMoneyState;
+	State soldState;
+	
+	State state = soldOutState;
+	int count = 0;
+	
+	public SodaVendingMachine(int numberOfSodas) {
+		soldOutState = new SoldOutState(this);
+		noMoneyState = new NoMoneyState(this);
+		hasMoneyState = new HasMoneyState(this);
+		soldState = new SoldState(this);
+		count = numberOfSodas;
+		
+		if(numberOfSodas > 0)
+		{
+			state = noMoneyState; // if there are more than 0 sodas we set the state to the noMoneyState
+		}
+	}
+	
+	// Actions
+	public void insertMoney() {
+		state.insertMoney();
+	}
+
+	public void ejectMoney() {
+		state.ejectMoney();
+	}
+
+	public void selectSoda() {
+		state.select();
+	}
+
+	public void dispence() {
+		state.dispense();
+	}
+	
+	int getCount() {
+		return count;
+	}
+
+	public State getSoldOutState() {
+		return soldOutState;
+	}
+
+	public void setSoldOutState(State soldOutState) {
+		this.soldOutState = soldOutState;
+	}
+
+	public State getNoMoneyState() {
+		return noMoneyState;
+	}
+
+	public void setNoMoneyState(State noMoneyState) {
+		this.noMoneyState = noMoneyState;
+	}
+
+	public State getHasMoneyState() {
+		return hasMoneyState;
+	}
+
+	public void setHasMoneyState(State hasMoneyState) {
+		this.hasMoneyState = hasMoneyState;
+	}
+
+	public State getSoldState() {
+		return soldState;
+	}
+
+	public void setSoldState(State soldState) {
+		this.soldState = soldState;
+	}
+
+	public State getState() {
+		return state;
+	}
+
+	public void setState(State state) {
+		this.state = state;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer result = new StringBuffer();
+		result
+		.append("\nThe Soda Machine, Co")
+		.append("\nInventory:" + count + " soda");
+		
+		if(count != 1)
+		{
+			result.append("\'s");
+		}
+		result.append("\n");
+		result.append("Soda Vending Machine is " + state + "\n");
+		return result.toString();
+	}
+	
+}
+
+
+```
+
+> SoldState.java
+
+```java
+
+class SoldState implements State 
+{
+	
+	SodaVendingMachine sodaVendingMachine;
+	
+	public SoldState(SodaVendingMachine sodaVendingMachine)
+	{
+		this.sodaVendingMachine = sodaVendingMachine;
+	}
+
+	@Override
+	public void insertMoney() {
+		System.out.println("Give a second... soda coming right up!");
+	}
+
+	@Override
+	public void ejectMoney() {
+		System.out.println("Sorry... soda is coming...");
+	}
+
+	@Override
+	public void select() {
+		System.out.println("Nope... you can't eject the money if you already have the soad");
+	}
+
+	@Override
+	public void dispense() {
+		System.out.println("Stop trying to get second soda for free!");
+		if(sodaVendingMachine.getCount() > 0)
+		{
+			sodaVendingMachine.setState(sodaVendingMachine.noMoneyState);
+		}
+		else
+		{
+			System.out.println("Sorry, out of sodas");
+			sodaVendingMachine.setState(sodaVendingMachine.soldOutState);
+		}
+	}
+	
+	@Override
+	public String toString() {
+		return "Dispensing soda";
+	}
+}
+
+
+```
+
+> SoldOutState.java
+
+```java
+
+class SoldOutState implements State
+{
+	
+	SodaVendingMachine sodaVendingMachine;
+	
+	public SoldOutState(SodaVendingMachine sodaVendingMachine) {
+		this.sodaVendingMachine = sodaVendingMachine;
+	}
+
+	@Override
+	public void insertMoney() {
+		System.out.println("Machine sold out!");
+	}
+
+	@Override
+	public void ejectMoney() {
+		System.out.println("Insert money first before ejecting");
+	}
+
+	@Override
+	public void select() {
+		System.out.println("No soda available");
+	}
+
+	@Override
+	public void dispense() {
+		System.out.println("sold out");
+	}
+	
+	@Override
+	public String toString() {
+		return "Sold out!";
+	}
+	
+}
+
+
+```
+
+> NoMoneyState.java
+
+```java
+
+class NoMoneyState implements State
+{
+	
+	SodaVendingMachine sodaVendingMachine;
+	
+	public NoMoneyState(SodaVendingMachine sodaVendingMachine) {
+		this.sodaVendingMachine = sodaVendingMachine;
+	}
+
+	@Override
+	public void insertMoney() {
+		System.out.println("You inserted a doller");
+		sodaVendingMachine.setState(sodaVendingMachine.getHasMoneyState());
+	}
+
+	@Override
+	public void ejectMoney() {
+		System.out.println("You haven't inserted a doller");
+	}
+
+	@Override
+	public void select() {
+		System.out.println("You selected, but there's no money!");
+	}
+
+	@Override
+	public void dispense() {
+		System.out.println("Pay me first!");
+	}
+
+	@Override
+	public String toString() {
+		return "waiting for a doller...";
+	}
+	
+}
+
+
+```
+
+> HasMoneyState.java
+
+
+```java
+
+class HasMoneyState implements State
+{
+
+	SodaVendingMachine sodaVendingMachine;
+	
+	public HasMoneyState(SodaVendingMachine sodaVendingMachine) {
+		this.sodaVendingMachine = sodaVendingMachine;
+	}
+	
+	@Override
+	public void insertMoney() {
+		System.out.println("No need to insert another doller bill");
+	}
+
+	@Override
+	public void ejectMoney() {
+		System.out.println("Returning your doller");
+		sodaVendingMachine.setState(sodaVendingMachine.getNoMoneyState());
+	}
+	
+	@Override
+	public void select() {
+		System.out.println("Selected item...");
+		sodaVendingMachine.setState(sodaVendingMachine.getSoldState());
+	}
+
+	@Override
+	public void dispense() {
+		System.out.println("No soda dispansed");
+	}
+
+	@Override
+	public String toString() {
+		return "waiting for a new selection...";
+	}
+	
+}
+
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) {
+
+		SodaVendingMachine sodaVendingMachine = new SodaVendingMachine(10);
+		
+		System.out.println(sodaVendingMachine);
+		
+		sodaVendingMachine.insertMoney();
+		sodaVendingMachine.selectSoda();
+
+		System.out.println(sodaVendingMachine);
+		
+		sodaVendingMachine.insertMoney();
+		sodaVendingMachine.selectSoda();
+		
+		System.out.println(sodaVendingMachine);
+		
+		sodaVendingMachine.insertMoney();
+		sodaVendingMachine.selectSoda();
+		
+		System.out.println(sodaVendingMachine);
+		
+	}
+
+}
+
+```
+
+
 ```
 ***********************************************************************************************
 ***********************************************************************************************
@@ -2444,6 +2788,7 @@ ___________________
 > Things we should know
 
 - Whenever we use same method signature than pull that method and store in an interface, that woul be nice
+- we have observe that any design to work we must wrap that with other solid classes and than use that solid class to wrap other class or little bit more like composition and all.
 
 ```java
 
