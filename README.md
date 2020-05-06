@@ -2775,6 +2775,177 @@ public class Main {
 }
 
 ```
+# The Remote Proxy Design Pattern
+
+![ProxyPattern](https://res.cloudinary.com/dcalvdelc/image/upload/v1588757942/3.2_ProxyPattern.png.png)
+
+![BankProxyPatternExample](https://res.cloudinary.com/dcalvdelc/image/upload/v1588757941/3.1_BankProxy.png.png)
+
+``
+Proxy pattern is used when we need to create a wrapper to cover the main object's complexity from the client. 
+Remote proxy: They are responsible for representing the object located remotely. 
+Talking to the real object might involve marshalling and unmarshalling of data and talking to the remote object.
+``
+
+> Bank.java
+
+```java
+
+interface Bank {
+	void withdrawMoney(String clientName) throws Exception;
+}
+
+```
+
+> RealBank.java
+
+```java
+
+class RealBank implements Bank {
+
+	@Override
+	public void withdrawMoney(String clientName) throws Exception {
+		System.out.println(clientName + " is withdrawing form the ATM\u2026");
+	}
+
+}
+
+```
+
+> ProxyBank.java
+
+```java
+
+class ProxyBank implements Bank {
+
+	private RealBank bank = new RealBank();
+	private static List<String> bannedClients;
+
+	static {
+		bannedClients = new ArrayList<>();
+		bannedClients.add("xXcs");
+		bannedClients.add("me@me");
+		bannedClients.add("@xml.com");
+	}
+
+	@Override
+	public void withdrawMoney(String clientName) throws Exception {
+		if (bannedClients.contains(clientName.toLowerCase())) {
+			throw new Exception(clientName + ", Access Denied! You are not who you say you are!");
+		}
+		bank.withdrawMoney(clientName);
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args){
+		
+	Bank bank = new ProxyBank();
+	try{
+		bank.withdrawMoney("Gaurav");
+		bank.withdrawMoney("me@me");
+	}catch(Exception e){
+		System.out.println(e.getMessage());
+	}
+	
+}
+
+```
+
+##### EXAMPLE 2
+
+> INotificationInterceptor.java
+
+```java
+
+interface INotificationInterceptor
+{
+	void sendMessage(String username, String message);
+}
+
+```
+
+> NotificationInterceptor.java
+
+```java
+
+class NotificationInterceptor implements INotificationInterceptor
+{
+	
+	@Override
+	public void sendMessage(String username, String message) {
+		StringBuilder builder = new StringBuilder();
+		
+		builder
+			.append("sending message to:\n")
+			.append("<p>")	
+				.append("<b>@")
+					.append(username.toLowerCase())
+				.append("</b>")
+					.append(message)
+			.append("</p>");
+		
+		String result = builder.toString();
+		
+		// you can parse the HTML later...
+		System.out.println(result);
+	}
+	
+}
+
+```
+
+> NotificationSender.java 
+
+```java
+
+class NotificationSender implements INotificationInterceptor
+{
+
+	NotificationInterceptor notificationInterceptor = new NotificationInterceptor();
+	static ArrayList<String> alreadySentTo;
+	
+	static {
+		alreadySentTo = new ArrayList<>();
+		alreadySentTo.add("saurav");
+		alreadySentTo.add("mahesh");
+	}
+	
+	@Override
+	public void sendMessage(String username, String message) {
+		if(!alreadySentTo.contains(username))
+		{
+			notificationInterceptor.sendMessage(username, message);
+			alreadySentTo.add(username);
+			return;
+		}
+		System.out.println("You have already sent notification to, " + username);
+	}
+}
+
+```
+
+```java
+
+public class Main {
+
+	public static void main(String[] args){
+		INotificationInterceptor notificationInterceptor = new NotificationSender();
+		notificationInterceptor.sendMessage("gaurav", "Welcomes you to the application.");
+		notificationInterceptor.sendMessage("gaurav", "Welcomes you to the application.");
+	}
+
+}
+
+```
 
 
 ```
