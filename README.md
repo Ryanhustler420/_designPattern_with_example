@@ -2947,6 +2947,142 @@ public class Main {
 
 ```
 
+# The MVC (Model View Controller) Design Pattern
+
+> model/Employee.java
+
+```java
+
+class Employee
+{
+	private String firstName;
+	private String lastName;
+	private String ssNumber;
+	private String salary;
+	
+	public String getSalary() {
+		return salary;
+	}
+	public void setSalary(String salary) {
+		this.salary = salary;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getSsNumber() {
+		return ssNumber;
+	}
+	public void setSsNumber(String ssNumber) {
+		this.ssNumber = ssNumber;
+	}
+	
+}
+
+```
+
+> view/EmployeeDashboardView.java
+
+```java
+
+class EmployeeDashboardView
+{
+	public void printEmployeeInformation(Employee e)
+	{
+		System.out.println("Name: " + e.getFirstName() + " " + e.getLastName());
+		System.out.println("SocialSecurtyNumber: " + e.getSsNumber());
+		System.out.println("Salary: " + e.getSalary());
+	}
+}
+
+```
+
+> controller/EmployeeController.java
+
+```java
+
+class EmployeeController
+{
+	private Employee employeeModel;
+	private EmployeeDashboardView employeeDashboardView;
+	
+	public EmployeeController(Employee employeeModel, EmployeeDashboardView employeeDashboardView) {
+		this.employeeModel = employeeModel;
+		this.employeeDashboardView = employeeDashboardView;
+	}
+	
+	public void setEmployee(String firstName, String lastName)
+	{
+		employeeModel.setFirstName(firstName);
+		employeeModel.setLastName(lastName);
+	}
+	
+	public String getEmployeeName()
+	{
+		return employeeModel.getFirstName() + " " + employeeModel.getLastName();
+	}
+	
+	public void setSSN(String ssn)
+	{
+		employeeModel.setFirstName(ssn);
+	}
+	
+	public String getSSN()
+	{
+		return employeeModel.getSsNumber();
+	}
+	
+	// Update our view
+	
+	public void updateDashboardView()
+	{
+		employeeDashboardView.printEmployeeInformation(employeeModel);
+	}
+	
+}
+
+```
+> Main.java
+
+```java
+
+public class Main {
+
+	public static Employee retrieveEmployeeFromServer()
+	{
+		Employee employee = new Employee();
+		employee.setSsNumber("3222458");
+		employee.setFirstName("Gourav");
+		employee.setLastName("Gupta");
+		employee.setSalary("150000");		
+		return employee;
+	}
+	
+	public static void main(String[] args) throws InterruptedException {
+		
+		Employee employee = retrieveEmployeeFromServer();
+		
+		// Creating our view to which we'll write our employee information into
+		EmployeeDashboardView view = new EmployeeDashboardView();
+		
+		// Creating controller
+		EmployeeController controller = new EmployeeController(employee, view);
+		controller.updateDashboardView();
+		
+	}
+	
+}
+
+```
+
 
 ```
 ***********************************************************************************************
