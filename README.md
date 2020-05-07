@@ -3111,3 +3111,102 @@ Checking new messages in inbox…
 No new messages!!!
 All done...
 ```
+
+##### Example 2 (Proxy Design Pattern)
+
+> ISecureNetworkProxy.java
+
+```java
+
+interface ISecureNetworkProxy {
+	void connect(String url) throws InterruptedException;
+}
+
+```
+
+> SimpleNetwork.java
+
+```java
+
+class SimpleNetwork implements ISecureNetworkProxy {
+	private boolean isConnected;
+	private long port = 80;
+
+	void disconnect() {
+		if (isConnected)
+			isConnected = false;
+		System.out.println("Disconnected\u2026");
+	}
+	
+	public void setPort(long port) {
+		this.port = port;
+	}
+
+	@Override
+	public void connect(String url) throws InterruptedException {
+		isConnected = true;
+		System.out.println("Please wait while we are connecting to " + url + " via\u2026 port:" + port);
+		TimeUnit.SECONDS.sleep(1);
+		if(port == 80)
+		{
+			disconnect();
+			return;
+		}
+		System.out.println("You are connected...");
+	}
+
+}
+
+```
+
+> ProxyNetwork.java
+
+```java
+
+class ProxyNetwork implements ISecureNetworkProxy {
+
+	SimpleNetwork network = new SimpleNetwork();
+	// Ports ports;
+	// NetworkHelpers helpers
+	// More class instances here as composition
+	static List<Long> availablePorts;
+
+	static {
+		availablePorts = new ArrayList<>();
+		availablePorts.add(443L);
+		availablePorts.add(5778L);
+	}
+
+	@Override
+	public void connect(String url) throws InterruptedException {
+		// it will help to find secure port within availble ports, all though end user can call the methods manually but they have to perform these operation on their own...
+		if (availablePorts.contains(443L)) {
+			network.setPort(443L);
+			network.connect(url);
+		} else
+			System.out.println("No secure port available as of now\u2026");
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+
+		ISecureNetworkProxy newtorkIO = new SimpleNetwork();
+		newtorkIO.connect("www.google.com");
+		
+		ISecureNetworkProxy networkProxy = new ProxyNetwork();
+		networkProxy.connect("www.google.com");
+		
+	}
+	
+}
+
+```
