@@ -3180,7 +3180,7 @@ class ProxyNetwork implements ISecureNetworkProxy {
 	@Override
 	public void connect(String url) throws InterruptedException {
 		// it will help to find secure port within availble ports, 
-		all though end user can call the methods manually but they have to perform these operation on their own...
+		// all though end user can call the methods manually but they have to perform these operation on their own...
 		if (availablePorts.contains(443L)) {
 			network.setPort(443L);
 			network.connect(url);
