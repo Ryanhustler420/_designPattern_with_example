@@ -3083,6 +3083,97 @@ public class Main {
 
 ```
 
+# Prototype Design Pattern
+
+``Used when creating an instance of a given class is either expensive or complicated.``
+
+> Animal.java
+
+```java
+
+interface Animal extends Cloneable {
+	Animal clone();
+}
+
+```
+
+> Dog.java
+
+```java
+
+class Dog implements Animal {
+
+	private String name;
+	private int age;
+
+	public Dog(String name, int age) {
+		super();
+		this.name = name;
+		this.age = age;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	@Override
+	public Animal clone() {
+		Dog doggy = null;
+		try {
+			doggy = (Dog) super.clone();
+		} catch (CloneNotSupportedException e) {
+			e.printStackTrace();
+		}
+		return doggy;
+	}
+
+	@Override
+	public String toString() {
+		return "A Dog [name=" + name + ", age=" + age + "]";
+	}
+
+}
+
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+
+		Dog joy = new Dog("Joy", 60);
+		System.out.println(joy);
+
+		Dog sam = (Dog) joy.clone();
+		sam.setName("sam");
+		System.out.println(sam);
+		
+		System.out.println(System.identityHashCode(sam));
+		System.out.println(System.identityHashCode(joy));
+
+	}
+	
+}
+
+```
+
+
 
 ```
 ***********************************************************************************************
