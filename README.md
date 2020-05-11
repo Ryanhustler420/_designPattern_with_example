@@ -3085,7 +3085,7 @@ public class Main {
 
 # Prototype Design Pattern
 
-``Used when creating an instance of a given class is either expensive or complicated.``
+``Used when creating an instance of a given class is either expensive or complicated.`` [Truth](https://softwareengineering.stackexchange.com/a/149569)
 
 > Animal.java
 
