@@ -3298,6 +3298,183 @@ public class Main {
 
 ```
 
+# The Visitor Design Pattern
+``Allows us to add methods to classes of different types without much altering``
+
+![visitorUMLImage](https://res.cloudinary.com/dcalvdelc/image/upload/v1589348509/4.1_Visitor-JDP.png.png)
+
+```
+THOUGHT:- please before making any classes please pull out functions to interfaces
+also observe when we use same method in different class under same parent
+than stop everything and pull those functions out and place that inside an interface...
+
+
+if we want to observe what going on indesign pattern than please ignore interface design and focus
+on solid classed to get a clear view of the solution. we can test this though on any design pattern
+like observer pattern or mediator design pattern.
+
+```
+
+> Visitor.java
+
+```java
+
+interface Visitor {
+	double visitor(Shirt shirtItem);
+
+	double visitor(TShirt tShirtItem);
+
+	double visitor(Jacket jacketItem);
+}
+
+```
+
+> TaxVisitor.java
+
+```java
+
+class TaxVisitor implements Visitor {
+
+	// DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
+	public TaxVisitor() {
+		super();
+	}
+
+	@Override
+	public double visitor(Shirt shirtItem) {
+		System.out.println("Shirt final price with tax:");
+		return (int) ((shirtItem.getPrice() * .10) + shirtItem.getPrice());
+	}
+
+	@Override
+	public double visitor(TShirt tShirtItem) {
+		System.out.println("TShirt final price with tax:");
+		return (int) ((tShirtItem.getPrice() * .18) + tShirtItem.getPrice());
+	}
+
+	@Override
+	public double visitor(Jacket jacketItem) {
+		System.out.println("Jacket final price with tax:");
+		return (int) ((jacketItem.getPrice() * .20) + jacketItem.getPrice());
+	}
+
+}
+
+```
+
+> Visitable.java
+
+```java
+
+interface Visitable {
+	double accept(Visitor visitor);
+}
+
+```
+
+> Shirt.java
+
+
+```java
+
+class Shirt implements Visitable {
+
+	private double price;
+
+	public Shirt(double price) {
+		super();
+		this.price = price;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	@Override
+	public double accept(Visitor visitor) {
+		return visitor.visitor(this);
+	}
+
+}
+
+```
+
+> TShirt.java
+
+```java
+
+class TShirt implements Visitable {
+	private double price;
+
+	public TShirt(double price) {
+		super();
+		this.price = price;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	@Override
+	public double accept(Visitor visitor) {
+		return visitor.visitor(this);
+	}
+}
+
+```
+
+> Jacket.java
+
+```java
+
+class Jacket implements Visitable {
+
+	private double price;
+
+	public Jacket(double price) {
+		super();
+		this.price = price;
+	}
+
+	public double getPrice() {
+		return price;
+	}
+
+	@Override
+	public double accept(Visitor visitor) {
+		return visitor.visitor(this);
+	}
+
+}
+
+```
+
+> Main.java
+
+```java
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		TaxVisitor taxVisitor = new TaxVisitor();
+		Jacket jacket = new Jacket(49.99);
+		TShirt tShirt = new TShirt(24.99);
+		Shirt shirt = new Shirt(22.89);
+
+		// Use our Tax Calculation
+		System.out.println(jacket.accept(taxVisitor));
+		System.out.println(tShirt.accept(taxVisitor));
+		System.out.println(shirt.accept(taxVisitor));
+
+		// We can create Discount Visitor as well or even many others, copy logic form TaxVisitor
+	
+	}
+	
+}
+
+```
+
 
 ```
 ***********************************************************************************************
