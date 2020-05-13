@@ -3173,6 +3173,130 @@ public class Main {
 
 ```
 
+# Mediator Design Pattern
+``Centralizes complex communications and control between related objects. it solves Subsystem (Actors || Calleagues) Communication Problem i.e. Centralized Communication``
+
+![image](https://res.cloudinary.com/dcalvdelc/image/upload/v1589345913/4.1_Mediator-JDP.png.png)
+[read difference between observer design pattern and the mediator design pattern](https://stackoverflow.com/a/9226745/8703198)
+
+> ATCMediator.java
+
+```java
+
+interface ATCMediator {
+	void sendMessage(String msg, AirCraft airCraft);
+
+	void addAirCraft(AirCraft airCraft);
+}
+
+```
+
+> AirCraft.java
+
+```java
+
+abstract class AirCraft {
+	protected ATCMediator mediator;
+	protected String name;
+
+	public AirCraft(ATCMediator mediator, String name) {
+		this.mediator = mediator;
+		this.name = name;
+	}
+
+	public abstract void send(String message);
+
+	public abstract void receive(String message);
+
+}
+
+```
+
+> ATCMediatorImpl.java
+
+```java
+
+class ATCMediatorImpl implements ATCMediator {
+
+	private List<AirCraft> airCrafts;
+
+	public ATCMediatorImpl() {
+		this.airCrafts = new ArrayList<>();
+	}
+
+	@Override
+	public void sendMessage(String msg, AirCraft airCraft) {
+		for (AirCraft a : airCrafts) {
+			// message should not be receive by the aircraft sending the message...
+			if (a != airCraft) {
+				a.receive(msg);
+			}
+		}
+	}
+
+	@Override
+	public void addAirCraft(AirCraft airCraft) {
+		this.airCrafts.add(airCraft);
+	}
+
+}
+
+```
+
+> AirCraftImpl.java
+
+```java
+
+class AirCraftImpl extends AirCraft {
+
+	public AirCraftImpl(ATCMediator mediator, String name) {
+		super(mediator, name);
+	}
+
+	@Override
+	public void send(String message) {
+		System.out.println(this.name + " : Sending message = " + message);
+		mediator.sendMessage(message, this);
+	}
+
+	@Override
+	public void receive(String message) {
+		System.out.println(this.name + " : Received message = " + message);
+	}
+	
+}
+
+```
+
+> Main.java
+
+```java
+
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+	
+		// Air Traffic Controller
+		ATCMediator mediator = new ATCMediatorImpl();
+		
+		// Create a few airCrafts
+		AirCraft boing1 = new AirCraftImpl(mediator, "Boing 1");
+		AirCraft helicopter = new AirCraftImpl(mediator, "Helicopter");
+		AirCraft boing707 = new AirCraftImpl(mediator, "Boing 707");
+		
+		// Adding airCrafts to the mediator
+		mediator.addAirCraft(boing1);
+		mediator.addAirCraft(helicopter);
+		mediator.addAirCraft(boing707);
+		
+		boing1.send("Boing 1 Killed Helicopter");
+	
+	}
+	
+}
+
+```
 
 
 ```
