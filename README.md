@@ -3739,3 +3739,83 @@ public class Main {
 }
 
 ```
+
+##### Best Practice
+
+```
+Whenever, some operation is happening to get some data from that specific Api's, 
+good practice to wrap those into another HOC i.e High Order Component or Class in this case
+Because it creates another level of abstraction.
+```
+> Example
+
+```java
+
+public static class Personnn 
+{
+	private String name;
+
+	public Personnn(String name) {
+		super();
+		this.name = name;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+}
+
+
+public static class PersonnnWrapper
+{
+	private Personnn person;
+
+
+	public PersonnnWrapper(String name)
+	{
+		person = new Personnn(name);
+	}
+
+	public String getNameInUpperCase()
+	{
+		return person.getName().toUpperCase();
+	}
+
+	public char getCharAtIndex(int pos)
+	{
+		// make sure that it doesn't cause any outOfIndexBounds Exception
+		if(pos < person.getName().length() && pos > 0)
+			return person.getName().charAt(pos);
+		else
+			return person.getName().charAt(0); 
+	}
+
+}
+
+public class Main {
+
+	public static void main(String[] args) throws InterruptedException {
+		
+		Personnn p = new Personnn("Gaurav");
+		System.out.println(p.getName());
+		System.out.println(p.getName().toUpperCase());
+		System.out.println(p.getName().toLowerCase().charAt(0));
+		
+		/// create another level of abstraction...
+		
+		// this creates another level of abstarction and looks more cristle clear
+		PersonnnWrapper pw = new PersonnnWrapper("Gaurav");
+		System.out.println(pw.getNameInUpperCase());
+		System.out.println(pw.getCharAtIndex(0));
+		
+	}
+}
+
+
+```
+
